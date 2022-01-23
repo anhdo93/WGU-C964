@@ -37,17 +37,18 @@ h1, h2 {
 .item {
     min-height: 300px;
     padding: 10px;
-    border: 1px solid blue;
+    margin: 5px;
+    box-shadow: 2px 2px 8px 0 rgb(128 128 128);
+    background-color: cornsilk;
+    border-radius: 10px;
     width: 300px; 
     min-width: 300px;          
     flex-grow: 1;        
 }
 .dropdown {
-    border: 1px solid blue;    
     margin: 10px;
 }
 .checkbox {
-    border: 1px solid blue;    
     margin: 10px;
 }
 label {
@@ -76,8 +77,9 @@ select {
   background-color: #c7a10b; 
   color: white;
 }
-footer {
-    background-color:darkgrey;
+footer  \{
+    background-color:#333333;
+    color: white;
     font-size: 80%;
     margin: -10px;
     padding: 0px 20px 5px 20px;
