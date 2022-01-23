@@ -1,0 +1,84 @@
+* {
+    font-family: 'Segoe UI', Arial, sans-serif;   
+    line-height: 2;
+}
+header {    
+    display: block;
+    position: sticky;
+    overflow: hidden;    
+    margin: -10px;
+    background-image: linear-gradient(to right, #0b17c4 , #077951);
+}
+.logo {   
+    float: left;     
+    height: 70px;
+    margin: auto;
+}
+nav ul {
+    float: right;
+}
+li, li a {        
+    display: inline-block;
+    color: white;
+    text-align: center;
+    padding: 7px 7px;
+    text-decoration: none;
+}
+li:hover {
+    background-color: #58addf;    
+}
+h1, h2 {
+    text-align: center;
+}
+.container {
+    display: flex;    
+    flex-wrap: wrap;        
+}
+.item {
+    min-height: 300px;
+    padding: 10px;
+    border: 1px solid blue;
+    width: 300px; 
+    min-width: 300px;          
+    flex-grow: 1;        
+}
+.dropdown {
+    border: 1px solid blue;    
+    margin: 10px;
+}
+.checkbox {
+    border: 1px solid blue;    
+    margin: 10px;
+}
+label {
+    display: inline-block;    
+    width: 150px;    
+}
+select {
+    display: inline-block;
+    width: 150px; 
+}
+#button {
+    background-color: #f1c50e;
+    border-style: none;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 2px 2px 8px 0 rgb(128 128 128);
+    transition-duration: 0.5s;
+    margin: 22px auto ;
+    padding: 17px 58px 19px 57px;
+    border-radius: 50px;
+    display: table;    
+    cursor: pointer;
+}
+#button:hover {
+  background-color: #c7a10b; 
+  color: white;
+}
+footer {
+    background-color:darkgrey;
+    font-size: 80%;
+    margin: -10px;
+    padding: 0px 20px 5px 20px;
+}
