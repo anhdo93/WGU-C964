@@ -4,8 +4,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Importing Data 
-application = pd.read_csv('/content/drive/Othercomputers/My Computer/Desktop/application_record.csv') # Application records - features
-credit = pd.read_csv('/content/drive/Othercomputers/My Computer/Desktop/credit_record.csv') # Credit records - labels
+application = pd.read_csv('data/application_record.csv') # Application records - features
+credit = pd.read_csv('data/credit_record.csv') # Credit records - labels
 
 application.iloc[:,:].agg(lambda x:';'.join(str(y) for y in x.unique())).to_frame('Unique Values')
 
@@ -115,3 +115,25 @@ The currency is in CNY (1 USD = 0.16 CNY)
 """
 
 raw['AMT_INCOME_TOTAL'].plot(kind='hist', bins = 50,density = True)
+
+"""### Age (DAYS_BIRTH)
+
+### Employment Length (DAYS_EMPLOYED)
+
+### Family Size (CNT_FAM_MEMBERS)
+
+### Loan Duration (OPEN_MONTH)
+
+---
+## Categorical Features
+
+### Income Category (NAME_INCOME_TYPE)
+
+### Education Level (NAME_EDUCATION_TYPE)
+
+### Marital Status (NAME_FAMILY_STATUS)
+
+### Residency (NAME_HOUSING_TYPE)
+
+### Occupation (OCCUPATION_TYPE)
+"""
