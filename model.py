@@ -32,7 +32,7 @@ users = users.rename(columns = {'MONTHS_BALANCE':'OPEN_MONTH'})
 print(users['APPROVED'].value_counts())
 users['APPROVED'].value_counts(normalize=True)
 
-# Raw Data
+# Raw Data = Merge Application + Credit data
 # Merge two dataframes 'application' and 'open_month' by 'ID'
 raw = pd.merge(application, users, how = 'right', on ='ID')
 raw.dropna(inplace = True) # Drop credit records with no information - ANY

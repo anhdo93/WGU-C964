@@ -43,7 +43,8 @@ h1, h2 {
     border-radius: 10px;
     width: 300px; 
     min-width: 300px;          
-    flex-grow: 1;        
+    flex-grow: 1;      
+    max-width: 400px;  
 }
 .dropdown {
     margin: 10px;

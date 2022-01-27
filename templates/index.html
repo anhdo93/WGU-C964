@@ -22,7 +22,7 @@
             </nav>
         </header>
         <main>
-            <form action="" id="app_form">
+            <form action="/result" method="post" id="app_form">
                 <h1>Credit Approval Application</h1>
                 <div class="container">
                     <div class="item">
@@ -57,6 +57,13 @@
                                     <option value="2">2</option>
                                     <option value=">2">>2</option>
                                 </select>
+                                <br>
+                                <label for="family-size">Family Size</label>
+                                <select id="family-size" name="FAMILY_SIZE">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value=">2">>2</option>
+                                </select>
                             </div>
                         </section>
                     </div>
@@ -73,6 +80,13 @@
                                 <label for="select-employment-date">Employment Date</label>
                                 <input id="select-employment-date" type="date" placeholder="MM/DD/YYYY" name="EMPLOYMENT_DATE">
                                 <br>
+                                <label for="annual-income">Annual Income</label>
+                                <select id="annual-income" name="ANNUAL-INCOME">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                                <br>
                                 <label for="select-industry">Industry</label>
                                 <select id="select-industry" name="INDUSTRY">
                                     <option value="Commercial associate">Commercial associate</option>
@@ -86,7 +100,7 @@
                                     <option value="Sales staff">Sales staff</option>
                                 </select>
                                 <br>
-                                <label for="select-living">Living</label>
+                                <label for="select-living">Living Style</label>
                                 <select id="select-living" name="LIVING_STYLE">
                                     <option value="Rented">Rented</option>
                                     <option value="House/Apartment">House/Apartment</option>
@@ -103,7 +117,7 @@
                                 <input type="checkbox" id="email" name="EMAIL">    
                                 <br>
                                 <label for="mobile phone">Mobile phone</label>
-                                <input type="checkbox" id="mobile-phone" name="MOBILE">    
+                                <input type="checkbox" id="mobile-phone" name="MOBILE_PHONE">    
                                 <br>   
                                 <label for="work phone">Work phone</label>
                                 <input type="checkbox" id="work-phone" name="WORK_PHONE">    
@@ -119,7 +133,7 @@
                     </div>                
                 </div>
             </form>
-            <input type="button" form="app_form" value="Show Results" id="button">
+            <input type="submit" form="app_form" value="Show Results" id="button">
             
              
         </main>
