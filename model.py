@@ -1,7 +1,19 @@
+"""# Importing Libraries and Data"""
+
+# Commented out IPython magic to ensure Python compatibility.
+# %matplotlib inline
+
 # Importing Libraries
 import numpy as np
 import pandas as pd  
 import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, confusion_matrix 
+
+from imblearn.over_sampling import SMOTE
+from lightgbm import LGBMClassifier
 
 # Importing Data 
 application = pd.read_csv('data/application_record.csv') # Application records - features
@@ -9,27 +21,15 @@ credit = pd.read_csv('data/credit_record.csv') # Credit records - labels
 
 application.iloc[:,:].agg(lambda x:';'.join(str(y) for y in x.unique())).to_frame('Unique Values')
 
-# Application records
-print(application)
-application.info()
-application.describe()
-application.nunique()
-
-# Credit records
-print(credit)
-credit.info()
-credit.describe()
-credit.nunique()
 
 """# Data Cleaning"""
 
 # Labeling users with 'APPROVED' (0 - Not approved, 1 - Approved) on 'credit'
 credit['APPROVED'] = 1 # Adding 'APPROVED' column with everyone approved
-conditions = [credit['STATUS'].isin(['2', '3', '4', '5'])] # Conditions: due more than 60 days
+conditions = [credit['STATUS'].isin(['2', '3', '4', '5'])] # Conditions: due more than 60 days. Return TRUE/FALSE
 credit['APPROVED'] = np.select(conditions, [0], default = 1) # Assigned as risky users - not approved
 users = pd.DataFrame(credit.groupby(['ID']).agg({'APPROVED':'min', 'MONTHS_BALANCE':'min'})) # Unique users record with label and 'OPEN_MONTH'
 users = users.rename(columns = {'MONTHS_BALANCE':'OPEN_MONTH'})
-print(users['APPROVED'].value_counts())
 users['APPROVED'].value_counts(normalize=True)
 
 # Raw Data = Merge Application + Credit data
@@ -41,10 +41,7 @@ raw.dropna(inplace = True) # Drop credit records with no information - ANY
 raw = raw.astype({'FLAG_WORK_PHONE': 'int64','FLAG_PHONE': 'int64','FLAG_EMAIL': 'int64'}) # Preserve binary features as integer
 raw # Applications with matching credit records
 
-# Raw Data records
-raw.info()
-raw.describe()
-raw.nunique()
+
 raw.iloc[:,:].agg(lambda x:';'.join(str(y) for y in x.unique())).to_frame('Unique Values')
 
 # Copy raw data to 'data' dataframe ready to be cleaned
@@ -52,9 +49,11 @@ data = pd.DataFrame(raw['ID'])
 
 """# Features
 ---
+
+## Approval Target
 """
 
-data
+data['Approved']=raw['APPROVED']
 
 """## Binary Features
 
@@ -63,19 +62,16 @@ data
 
 map_array = {'F':0, 'M':1}
 data['Gender'] = raw['CODE_GENDER'].astype(str).replace(map_array)
-print(data['Gender'].value_counts())
 
 """### Car Ownership (FLAG_OWN_CAR)"""
 
 map_array = {'N':0, 'Y':1}
 data['Car'] = raw['FLAG_OWN_CAR'].astype(str).replace(map_array)
-print(raw['FLAG_OWN_CAR'].value_counts())
 
 """### Realty Ownership (FLAG_OWN_REALTY)"""
 
 map_array = {'N':0, 'Y':1}
 data['Realty'] = raw['FLAG_OWN_REALTY'].astype(str).replace(map_array)
-print(raw['FLAG_OWN_REALTY'].value_counts())
 
 """### Mobile Phone (FLAG_MOBIL)"""
 
@@ -85,19 +81,16 @@ print(raw['FLAG_OWN_REALTY'].value_counts())
 
 map_array = {'N':0, 'Y':1}
 data['Work Phone'] = raw['FLAG_WORK_PHONE'].astype(str).replace(map_array)
-print(raw['FLAG_WORK_PHONE'].value_counts())
 
 """### Phone (FLAG_PHONE)"""
 
 map_array = {'N':0, 'Y':1}
 data['Phone'] = raw['FLAG_PHONE'].astype(str).replace(map_array)
-print(raw['FLAG_PHONE'].value_counts())
 
 """### Email (FLAG_EMAIL)"""
 
 map_array = {'N':0, 'Y':1}
 data['Email'] = raw['FLAG_EMAIL'].astype(str).replace(map_array)
-print(raw['FLAG_EMAIL'].value_counts())
 
 """---
 ## Continuous Features
@@ -105,35 +98,189 @@ print(raw['FLAG_EMAIL'].value_counts())
 ### Number of Children (CNT_CHILDREN)
 """
 
+
 data['# of Children'] = np.clip(raw['CNT_CHILDREN'], a_min = None, a_max = 2 ) # Clipping at 2 children and above
-print(data['# of Children'].value_counts())
-data['# of Children'].plot(kind='hist', xticks = [0,1,2])
 
 """### Annual Income (AMT_INCOME_TOTAL)
 
 The currency is in CNY (1 USD = 0.16 CNY)
 """
 
-raw['AMT_INCOME_TOTAL'].plot(kind='hist', bins = 50,density = True)
+data['Annual Income'], bins_income = pd.qcut(raw['AMT_INCOME_TOTAL']/10000, q=3, labels=["low","medium", "high"], retbins = True)
 
-"""### Age (DAYS_BIRTH)
+"""### Age (DAYS_BIRTH)"""
 
-### Employment Length (DAYS_EMPLOYED)
 
-### Family Size (CNT_FAM_MEMBERS)
+data['Age'], bins_age = pd.cut(-raw['DAYS_BIRTH']//365, bins=5, labels=["lowest","low","medium","high","highest"], retbins = True) #qcut-q, cut-bins
 
-### Loan Duration (OPEN_MONTH)
+"""### Years Employed (DAYS_EMPLOYED)"""
 
----
+
+data['Years Employed'], bins_years_employed = pd.cut(-raw['DAYS_EMPLOYED']//365, bins=5, labels=["lowest","low","medium","high","highest"], retbins = True) #qcut-q, cut-bins
+
+"""### Family Size (CNT_FAM_MEMBERS)"""
+
+
+data['Family Size'] = np.clip(raw['CNT_FAM_MEMBERS'], a_min = None, a_max = 3 ) # Clipping at 3 family size and above
+#data['# of Children'].plot(kind='hist', xticks = [0,1,2])
+
+"""---
 ## Categorical Features
 
 ### Income Category (NAME_INCOME_TYPE)
-
-### Education Level (NAME_EDUCATION_TYPE)
-
-### Marital Status (NAME_FAMILY_STATUS)
-
-### Residency (NAME_HOUSING_TYPE)
-
-### Occupation (OCCUPATION_TYPE)
 """
+
+
+#TODO consider not to/to merge student and pensioner to state servant?
+map_array = {'State servant': ['Pensioner', 'Student']}
+data['Income Category'] = raw['NAME_INCOME_TYPE']
+for new_value in map_array:
+  data['Income Category'].replace(map_array[new_value], new_value, inplace=True)
+
+"""### Occupation (OCCUPATION_TYPE)"""
+
+
+map_array = {'Labor'    : ['Laborers','Drivers','Cooking staff','Security staff','Cleaning staff','Low-skill Laborers','Waiters/barmen staff'],
+             'Office'   : ['Core staff','Sales staff','Accountants','Medicine staff','Private service staff','Secretaries','HR staff','Realty agents'],
+             'High Tech': ['Managers','High skill tech staff','IT staff']}
+data['Occupation'] = raw['OCCUPATION_TYPE']
+for new_value in map_array:
+  data['Occupation'].replace(map_array[new_value], new_value, inplace=True)
+
+"""### Education (NAME_EDUCATION_TYPE)"""
+
+
+map_array = {'Higher education' : ['Academic degree']}             
+data['Education'] = raw['NAME_EDUCATION_TYPE']
+for new_value in map_array:
+  data['Education'].replace(map_array[new_value], new_value, inplace=True)
+
+"""### Marital Status (NAME_FAMILY_STATUS)"""
+
+
+data['Marital Status'] = raw['NAME_FAMILY_STATUS']
+
+"""### Residency (NAME_HOUSING_TYPE)"""
+
+
+data['Residency'] = raw['NAME_HOUSING_TYPE']
+
+"""# One Hot Encoding"""
+
+data
+
+#One-Hot Encoding (OHE) the following columns:
+OHE_columns=['# of Children','Annual Income','Age','Years Employed','Family Size','Income Category','Occupation','Education','Marital Status','Residency']
+data_OHE = pd.get_dummies(data, columns=OHE_columns)
+data_OHE.drop('ID',axis=1, inplace=True)
+
+
+
+f, ax = plt.subplots(figsize=(8, 8))
+corr = data_OHE.iloc[:,:].corr()
+threshold=np.where(abs(corr) < 0.1, 0, corr)
+mask=np.where(threshold==0,True,False)
+sns.set(font_scale=0.7)
+sns.heatmap(corr, cmap=sns.diverging_palette(10, 130, n=11), vmin=-1,
+            square=True, ax=ax, annot=threshold, mask=mask)
+
+"""# Algorithms
+
+## Prepare Training Data
+"""
+all_columns = list(data_OHE.columns)
+print(all_columns)
+X=data_OHE[all_columns]
+single_X_test = pd.DataFrame(columns=all_columns)
+single_X_test.loc['0',:] = 0
+
+
+# Single record test
+
+single_X_test['Gender']=0                                     #0-Female 1-Male
+single_X_test['Age_'+'low']=1                                 #lowest(20-29)/low(30-39)/medium(40-49)/high(50-59)/highest(>60)
+single_X_test['Education_'+'Secondary / secondary special']=1 #Secondary / secondary special/Higher education/Incomplete higher/Lower secondary 
+single_X_test['Marital Status_'+'Married']=1                  #Married/Single / not married/Civil marriage/Separated/Widow 
+single_X_test['# of Children_'+'0.0']=1                       #0.0/1.0/2.0
+
+#single_X_test['Employment Status']
+single_X_test['Years Employed_'+'highest']=1                  #lowest/low/medium/high/highest
+single_X_test['Annual Income_'+'high']=1                      #low/medium/high
+single_X_test['Income Category_'+'Commercial associate']=1    #Industry - Commercial associate/Working/State servant
+single_X_test['Occupation_'+'High Tech']=1                    #Labor/Office/High Tech
+single_X_test['Residency_'+'House / apartment']=1             #House / apartment/With parents/Municipal apartment/Rented apartment/Office apartment/Co-op apartment  
+
+single_X_test['Email']=1
+#single_X_test['Mobile Phone']=1
+single_X_test['Work Phone']=1
+single_X_test['Car']=1
+single_X_test['Realty']=1
+
+
+"""
+not_include_columns = ['Approved','Car','Phone','Email','# of Children_0.0','Family Size_2.0',
+                       'Income Category_Commercial associate', 'Income Category_State servant', 'Income Category_Working','Occupation_Labor','Education_Higher education',
+                       'Education_Secondary / secondary special','Marital Status_Married','Residency_House / apartment','Residency_With parents']
+"""
+not_include_columns = ['Approved']
+include_columns = ['Gender','Realty','# of Children_1.0', '# of Children_2.0','Work Phone',
+                    'Age_high', 'Age_highest', 'Age_low', 'Age_lowest',
+                    'Years Employed_high', 'Years Employed_highest', 'Years Employed_low', 'Years Employed_medium',
+                    'Occupation_High Tech', 'Occupation_Office', 'Family Size_1.0', 'Family Size_3.0',
+                    'Residency_Co-op apartment', 'Residency_Municipal apartment', 'Residency_Office apartment', 
+                    'Residency_Rented apartment', 'Residency_With parents','Education_Higher education',
+                    'Education_Incomplete higher', 'Education_Lower secondary','Marital Status_Civil marriage',
+                    'Marital Status_Separated','Marital Status_Single / not married','Marital Status_Widow']
+Y=X['Approved']
+X=X.drop(not_include_columns, axis=1)
+#X = X[include_columns]
+X = X.astype(int)
+
+single_X_test = single_X_test.drop(not_include_columns, axis=1)
+#single_X_test = single_X_test[include_columns]
+single_X_test = single_X_test.astype(int)
+
+X, X_test, Y, Y_test = train_test_split(X,Y, test_size=0.3,
+                                                    random_state = 10086)
+X_balance,Y_balance = SMOTE().fit_resample(X,Y) # fit_sample vs fit_resample?
+X_balance = pd.DataFrame(X_balance, columns = X.columns)
+X_train, X_test, Y_train, Y_test = train_test_split(X_balance,Y_balance, 
+                                                    stratify=Y_balance, test_size=0.3,
+                                                    random_state = 10086)
+
+
+"""## LightGBM"""
+
+
+model = LGBMClassifier(num_leaves=31,
+                       max_depth=8, 
+                       learning_rate=0.02,
+                       n_estimators=250,
+                       subsample = 0.8,
+                       colsample_bytree =0.8)
+
+model.fit(X_train, Y_train)
+
+Y_predict = model.predict(X_test)
+single_Y_predict = model.predict(single_X_test)
+
+print('Single test prediction: ', 'Approved' if single_Y_predict==1 else 'Not Approved')
+
+cm = confusion_matrix(Y_test,Y_predict,labels=model.classes_)
+
+print('Accuracy Score is {:.5}'.format(accuracy_score(Y_test, Y_predict)))
+print(pd.DataFrame(cm))
+
+ax = sns.heatmap(cm, annot=True, cmap='Blues')
+
+ax.set_title('Confusion Matrix (LightGBM)')
+ax.set_xlabel('Predicted Label')
+ax.set_ylabel('True Label')
+
+## Ticket labels - List must be in alphabetical order
+ax.xaxis.set_ticklabels(['False','True'])
+ax.yaxis.set_ticklabels(['False','True'])
+
+## Display the visualization of the Confusion Matrix.
+plt.show()
+
