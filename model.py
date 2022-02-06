@@ -9,11 +9,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+# For pre-processing data and evaluation results
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, confusion_matrix 
-
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, roc_auc_score, roc_curve
 from imblearn.over_sampling import SMOTE
-from lightgbm import LGBMClassifier
+from imblearn.under_sampling import RandomUnderSampler
+
+# For machine learning
+import lightgbm as lgb
 
 # Importing Data 
 application = pd.read_csv('data/application_record.csv') # Application records - features
@@ -24,13 +27,14 @@ application.iloc[:,:].agg(lambda x:';'.join(str(y) for y in x.unique())).to_fram
 
 """# Data Cleaning"""
 
-# Labeling users with 'APPROVED' (0 - Not approved, 1 - Approved) on 'credit'
-credit['APPROVED'] = 1 # Adding 'APPROVED' column with everyone approved
+# Labeling users with 'REJECTED' status (0 - Approved, 1 - Rejected) on 'credit'
+credit['REJECTED'] = 0 # Adding 'APPROVED' column with everyone approved
 conditions = [credit['STATUS'].isin(['2', '3', '4', '5'])] # Conditions: due more than 60 days. Return TRUE/FALSE
-credit['APPROVED'] = np.select(conditions, [0], default = 1) # Assigned as risky users - not approved
-users = pd.DataFrame(credit.groupby(['ID']).agg({'APPROVED':'min', 'MONTHS_BALANCE':'min'})) # Unique users record with label and 'OPEN_MONTH'
+credit['REJECTED'] = np.select(conditions, [1], default = 0) # Assign risky users
+users = pd.DataFrame(credit.groupby(['ID']).agg({'REJECTED':'max', 'MONTHS_BALANCE':'min'})) # Unique users record with label and 'OPEN_MONTH'
 users = users.rename(columns = {'MONTHS_BALANCE':'OPEN_MONTH'})
-users['APPROVED'].value_counts(normalize=True)
+print(users['REJECTED'].value_counts())
+users['REJECTED'].value_counts(normalize=True)
 
 # Raw Data = Merge Application + Credit data
 # Merge two dataframes 'application' and 'open_month' by 'ID'
@@ -53,7 +57,7 @@ data = pd.DataFrame(raw['ID'])
 ## Approval Target
 """
 
-data['Approved']=raw['APPROVED']
+data['Rejected']=raw['REJECTED']
 
 """## Binary Features
 
@@ -189,9 +193,16 @@ sns.heatmap(corr, cmap=sns.diverging_palette(10, 130, n=11), vmin=-1,
 ## Prepare Training Data
 """
 all_columns = list(data_OHE.columns)
+label = ['Rejected']
+all_features = [feature for feature in all_columns if feature not in label]
 print(all_columns)
-X=data_OHE[all_columns]
-single_X_test = pd.DataFrame(columns=all_columns)
+
+X=data_OHE[all_features]
+X = X.astype(int)
+Y=data_OHE[label]
+
+single_X_test = pd.DataFrame(columns=all_features)
+single_X_test = single_X_test.astype(int)
 single_X_test.loc['0',:] = 0
 
 
@@ -222,7 +233,7 @@ not_include_columns = ['Approved','Car','Phone','Email','# of Children_0.0','Fam
                        'Income Category_Commercial associate', 'Income Category_State servant', 'Income Category_Working','Occupation_Labor','Education_Higher education',
                        'Education_Secondary / secondary special','Marital Status_Married','Residency_House / apartment','Residency_With parents']
 """
-not_include_columns = ['Approved']
+not_include_columns = ['Rejected']
 include_columns = ['Gender','Realty','# of Children_1.0', '# of Children_2.0','Work Phone',
                     'Age_high', 'Age_highest', 'Age_low', 'Age_lowest',
                     'Years Employed_high', 'Years Employed_highest', 'Years Employed_low', 'Years Employed_medium',
@@ -231,55 +242,77 @@ include_columns = ['Gender','Realty','# of Children_1.0', '# of Children_2.0','W
                     'Residency_Rented apartment', 'Residency_With parents','Education_Higher education',
                     'Education_Incomplete higher', 'Education_Lower secondary','Marital Status_Civil marriage',
                     'Marital Status_Separated','Marital Status_Single / not married','Marital Status_Widow']
-Y=X['Approved']
-X=X.drop(not_include_columns, axis=1)
+
 #X = X[include_columns]
-X = X.astype(int)
 
-single_X_test = single_X_test.drop(not_include_columns, axis=1)
 #single_X_test = single_X_test[include_columns]
-single_X_test = single_X_test.astype(int)
 
-X, X_test, Y, Y_test = train_test_split(X,Y, test_size=0.3,
-                                                    random_state = 10086)
-X_balance,Y_balance = SMOTE().fit_resample(X,Y) # fit_sample vs fit_resample?
-X_balance = pd.DataFrame(X_balance, columns = X.columns)
-X_train, X_test, Y_train, Y_test = train_test_split(X_balance,Y_balance, 
-                                                    stratify=Y_balance, test_size=0.3,
-                                                    random_state = 10086)
+# Splitting test/train data
+X_train, X_test, Y_train, Y_test = train_test_split(X,Y, test_size=0.2,
+                                                    random_state = 1)
+
+# Balancing imbalanced data
+#X_train,Y_train = SMOTE(sampling_strategy='minority').fit_resample(X,Y)
+#X_train, X_val, Y_train, Y_val = train_test_split(X_train,Y_train, 
+                              #                      stratify=Y_train, test_size=0.05,
+                               #                     random_state = 1)
+
+X_train,Y_train = SMOTE(sampling_strategy=0.1).fit_resample(X,Y)
+X_train,Y_train = RandomUnderSampler(sampling_strategy=1).fit_resample(X_train,Y_train)
 
 
 """## LightGBM"""
 
+"""
+bst = lgb.LGBMClassifier( num_leaves=31,
+                            max_depth=8, 
+                            learning_rate=0.05,
+                            n_estimators=250,
+                            subsample = 0.8,
+                            colsample_bytree =0.8)
 
-model = LGBMClassifier(num_leaves=31,
-                       max_depth=8, 
-                       learning_rate=0.02,
-                       n_estimators=250,
-                       subsample = 0.8,
-                       colsample_bytree =0.8)
+bst.fit(X_train, Y_train)
+"""
+lgb_train = lgb.Dataset(X_train, Y_train)
+lgb_valid = lgb.Dataset(X_test, Y_test, reference = lgb_train)
+params = {
+    'objective': 'binary',
+    'metric': 'auc',
+    'learning_rate':0.5,
+    'is_unbalance': True,
+    'num_iterations':100
+}
 
-model.fit(X_train, Y_train)
 
-Y_predict = model.predict(X_test)
-single_Y_predict = model.predict(single_X_test)
+bst = lgb.LGBMModel(**params)
+bst.fit(X_train, Y_train, eval_set=[(X_test, Y_test)],eval_metric='auc',eval_names='validation set')
+#bst = lgb.train(params, lgb_train, valid_sets=lgb_valid)
 
-print('Single test prediction: ', 'Approved' if single_Y_predict==1 else 'Not Approved')
+Y_pred_prob = bst.predict(X_test)
+single_Y_pred_prob = bst.predict(single_X_test)
 
-cm = confusion_matrix(Y_test,Y_predict,labels=model.classes_)
+plt.scatter(range(len(Y_pred_prob)),np.sort(Y_pred_prob))
+plt.show()
 
-print('Accuracy Score is {:.5}'.format(accuracy_score(Y_test, Y_predict)))
+print('Single test prediction: ', 'Approved' if single_Y_pred_prob<0.5 else 'Rejected')
+print('Predicted : ',single_Y_pred_prob[0])
+print('Estimated credit score = ',(1-single_Y_pred_prob[0])*300+400)
+
+Y_pred = [0 if x<0.5 else 1 for x in Y_pred_prob]
+cm = confusion_matrix(Y_test,Y_pred)
+
+print('Accuracy Score is {:.5}'.format(accuracy_score(Y_test, Y_pred)))
 print(pd.DataFrame(cm))
+print(classification_report(Y_test, Y_pred))
 
-ax = sns.heatmap(cm, annot=True, cmap='Blues')
+ax = sns.heatmap(cm, annot=True, cmap='Blues', fmt='d')
 
 ax.set_title('Confusion Matrix (LightGBM)')
 ax.set_xlabel('Predicted Label')
 ax.set_ylabel('True Label')
 
-## Ticket labels - List must be in alphabetical order
-ax.xaxis.set_ticklabels(['False','True'])
-ax.yaxis.set_ticklabels(['False','True'])
+ax.xaxis.set_ticklabels(['Approved','Rejected'])
+ax.yaxis.set_ticklabels(['Approved','Rejected'])
 
 ## Display the visualization of the Confusion Matrix.
 plt.show()
