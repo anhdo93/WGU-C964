@@ -26,6 +26,7 @@ class User:
         setattr(self,'Education_'+'Secondary / secondary special',1)    #Secondary / secondary special/Higher education/Incomplete higher/Lower secondary 
         setattr(self,'Marital Status_'+'Married',1)                     #Married/Single / not married/Civil marriage/Separated/Widow 
         setattr(self,'# of Children_'+'0.0',1)                          #0.0/1.0/2.0
+        setattr(self,'Family Size_'+'1.0',1)                            #1.0/2.0/3.0
 
         #setattr(self,'Employment Status']
         setattr(self,'Years Employed_'+'highest',1)                     #lowest/low/medium/high/highest

@@ -230,33 +230,45 @@ bst = lgb.LGBMModel(**params)
 bst.fit(X_train, Y_train, eval_set=[(X_test, Y_test)],eval_metric='auc',
         eval_names='Test dataset',callbacks=[lgb.log_evaluation(50)])
 
+if __name__ == "__main__":
+  Y_pred_prob = bst.predict(X_test)
+  
+  print(bst.booster_.feature_name())
+  print(list(user_df))
+  for i in range(len(list(user_df))):
+    print(list(user_df)[i],' ',bst.booster_.feature_name()[i])
+    print(list(user_df)[i] == bst.booster_.feature_name()[i])
+  single_Y_pred_prob = bst.predict(user_df)
 
-Y_pred_prob = bst.predict(X_test)
-single_Y_pred_prob = bst.predict(user_df)
+  plt.scatter(range(len(Y_pred_prob)),np.sort(Y_pred_prob))
+  plt.show()
 
-plt.scatter(range(len(Y_pred_prob)),np.sort(Y_pred_prob))
-plt.show()
+  print('Single test prediction: ', 'Approved' if single_Y_pred_prob<0.5 else 'Rejected')
+  print('Predicted : ',single_Y_pred_prob[0])
+  print('Estimated credit score = ',(1-single_Y_pred_prob[0])*300+400)
 
-print('Single test prediction: ', 'Approved' if single_Y_pred_prob<0.5 else 'Rejected')
-print('Predicted : ',single_Y_pred_prob[0])
-print('Estimated credit score = ',(1-single_Y_pred_prob[0])*300+400)
+  Y_pred = [0 if x<0.5 else 1 for x in Y_pred_prob]
+  cm = confusion_matrix(Y_test,Y_pred)
 
-Y_pred = [0 if x<0.5 else 1 for x in Y_pred_prob]
-cm = confusion_matrix(Y_test,Y_pred)
+  print('Accuracy Score is {:.5}'.format(accuracy_score(Y_test, Y_pred)))
+  print(pd.DataFrame(cm))
+  print(classification_report(Y_test, Y_pred))
 
-print('Accuracy Score is {:.5}'.format(accuracy_score(Y_test, Y_pred)))
-print(pd.DataFrame(cm))
-print(classification_report(Y_test, Y_pred))
+  ax = sns.heatmap(cm, annot=True, cmap='Blues', fmt='d')
 
-ax = sns.heatmap(cm, annot=True, cmap='Blues', fmt='d')
+  ax.set_title('Confusion Matrix (LightGBM)')
+  ax.set_xlabel('Predicted Label')
+  ax.set_ylabel('True Label')
 
-ax.set_title('Confusion Matrix (LightGBM)')
-ax.set_xlabel('Predicted Label')
-ax.set_ylabel('True Label')
+  ax.xaxis.set_ticklabels(['Approved','Rejected'])
+  ax.yaxis.set_ticklabels(['Approved','Rejected'])
 
-ax.xaxis.set_ticklabels(['Approved','Rejected'])
-ax.yaxis.set_ticklabels(['Approved','Rejected'])
+  ## Display the visualization of the Confusion Matrix.
+  plt.show()
 
-## Display the visualization of the Confusion Matrix.
-plt.show()
+def show_result(user_df):
+  global bst
+  return bst.predict(user_df)[0]
 
+def get_features():
+  return all_features

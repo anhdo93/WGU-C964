@@ -8,7 +8,8 @@
     <meta name="description" content="Credit Approval Application">
     <title>Credit Approval Application</title>
     <link rel="icon" href="/static/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <link rel="stylesheet" type="text/css" href="/static/style.css"> 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>   
 </head>
 <body>
         <header>
@@ -22,7 +23,7 @@
             </nav>
         </header>
         <main>
-            <form action="/result" method="post" id="app_form">
+            <form action="/result" method="post" id="appForm">
                 <h1>Credit Approval Application</h1>
                 <div class="container">
                     <div class="item">
@@ -31,12 +32,22 @@
                             <div class="dropdown">
                                 <label for="select-gender">Gender</label>
                                 <select id="select-gender" name="GENDER">
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
+                                    <option value=1>Male</option>
+                                    <option value=0>Female</option>
                                 </select>
                                 <br>
+                                <!--- Option to switch to DOB
                                 <label for="select-DOB">Date of Birth</label>
                                 <input id="select-DOB" type="date" placeholder="MM/DD/YYYY" name="DOB">
+                                --->
+                                <label for="select-age">Age</label>
+                                <select id="select-age" name="AGE">
+                                    <option value="lowest"><30</option>
+                                    <option value="low">30-40</option>
+                                    <option value="medium">40-50</option>
+                                    <option value="high">50-60</option>
+                                    <option value="highest">>60</option>
+                                </select>
                                 <br>
                                 <label for="select-education">Education</label>
                                 <select id="select-education" name="EDUCATION">
@@ -57,16 +68,16 @@
                                 <br>
                                 <label for="select-children">Number of Children</label>
                                 <select id="select-children" name="CHILDREN_COUNT">
-                                    <option value="0">0</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2 or more</option>
+                                    <option value=0.0>0</option>
+                                    <option value=1.0>1</option>
+                                    <option value=2.0>2 or more</option>
                                 </select>
                                 <br>
                                 <label for="family-size">Family Size</label>
                                 <select id="family-size" name="FAMILY_SIZE">
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3 or more</option>
+                                    <option value=1.0>1</option>
+                                    <option value=2.0>2</option>
+                                    <option value=3.0>3 or more</option>
                                 </select>
                             </div>
                         </section>
@@ -75,20 +86,33 @@
                         <section>
                             <h2>Financial Status</h2>
                             <div class="dropdown">
+                                <!---
                                 <label for="select-employment-status">Employment Status</label>
                                 <select id="select-employment-status" name="EMPLOYMENT_STATUS">
                                     <option value="Employed">Employed</option>
                                     <option value="Unemployed">Unemployed</option>
                                 </select>
-                                <br>                            
+                                <br>
+                                --->
+                                <!--- Option to switch to Employment Date                       
                                 <label for="select-employment-date">Employment Date</label>
                                 <input id="select-employment-date" type="date" placeholder="MM/DD/YYYY" name="EMPLOYMENT_DATE">
                                 <br>
+                                --->
+                                <label for="select-years-employed">Years Employed</label>
+                                <select id="select-years-employed" name="YEARS_EMPLOYED">
+                                    <option value="lowest"><10</option>
+                                    <option value="low">10-17</option>
+                                    <option value="medium">18-25</option>
+                                    <option value="high">26-35</option>
+                                    <option value="highest">>35</option>
+                                </select>
+                                <br>
                                 <label for="annual-income">Annual Income</label>
-                                <select id="annual-income" name="ANNUAL-INCOME">
-                                    <option value="Low">Low</option>
-                                    <option value="Medium">Medium</option>
-                                    <option value="High">High</option>
+                                <select id="annual-income" name="ANNUAL_INCOME">
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
                                 </select>
                                 <br>
                                 <label for="select-industry">Industry</label>
@@ -105,8 +129,8 @@
                                     <option value="High Tech">High Tech</option>
                                 </select>
                                 <br>
-                                <label for="select-living">Living Style</label>
-                                <select id="select-living" name="LIVING_STYLE">
+                                <label for="select-residency">Residency</label>
+                                <select id="select-residency" name="RESIDENCY">
                                     <option value="Rented">Rented</option>
                                     <option value="House/Apartment">House/Apartment</option>
                                     <option value="With parents">With parents</option>
@@ -138,9 +162,12 @@
                     </div>                
                 </div>
             </form>
-            <input type="submit" form="app_form" value="Show Results" id="button">
-            
-             
+            <input type="submit" form="appForm" value="Show Results" id="formButton">
+            <section class="result">
+                <div class="loader"></div>
+                <div id="score"></div>
+            </section> 
+            <script src="/static/simulation.js"></script>
         </main>
         <footer>
             <p><u>Disclaimer</u>: The FICO®&nbsp;Score Estimator is for informational purposes only and is intended to approximate the FICO Score range based on answers to the questions provided.&nbsp;Your actual score, and the impact of any actions taken, results from a complex interaction of FICO's scoring methodologies and the information on your credit report, some of which changes daily

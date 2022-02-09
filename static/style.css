@@ -60,7 +60,7 @@ select {
     display: inline-block;
     width: 150px; 
 }
-#button {
+#formButton {
     background-color: #f1c50e;
     border-style: none;
     font-weight: 700;
@@ -74,9 +74,29 @@ select {
     display: table;    
     cursor: pointer;
 }
-#button:hover {
+#formButton:hover {
   background-color: #c7a10b; 
   color: white;
+}
+#score{
+    color:blue;
+    font-size:500%;
+    text-align: center;
+}
+.loader {
+    display: none;   
+    margin: auto; 
+    border: 16px solid #f3f3f3; /* Light grey */
+    border-top: 16px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {    
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 footer  {
     background-color:#333333;
