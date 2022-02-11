@@ -37,7 +37,7 @@ h1, h2 {
 .item {
     min-height: 300px;
     padding: 10px;
-    margin: 5px;
+    margin: auto;    
     box-shadow: 2px 2px 8px 0 rgb(128 128 128);
     background-color: cornsilk;
     border-radius: 10px;
