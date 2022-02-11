@@ -30,9 +30,5 @@ $('#appForm').submit(function(event){
         $('.loader').hide();        
         $('#score').text(score);            
         $('#score').show();
-    }, 1500);     
+    }, 1000);     
 });
-
-$(document).ready(function() {
-    console.log('success!')
-})

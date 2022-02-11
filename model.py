@@ -229,15 +229,10 @@ params = {
 bst = lgb.LGBMModel(**params)
 bst.fit(X_train, Y_train, eval_set=[(X_test, Y_test)],eval_metric='auc',
         eval_names='Test dataset',callbacks=[lgb.log_evaluation(50)])
+bst.booster_.save_model('preloaded_model.txt')
 
 if __name__ == "__main__":
-  Y_pred_prob = bst.predict(X_test)
-  
-  print(bst.booster_.feature_name())
-  print(list(user_df))
-  for i in range(len(list(user_df))):
-    print(list(user_df)[i],' ',bst.booster_.feature_name()[i])
-    print(list(user_df)[i] == bst.booster_.feature_name()[i])
+  Y_pred_prob = bst.predict(X_test)  
   single_Y_pred_prob = bst.predict(user_df)
 
   plt.scatter(range(len(Y_pred_prob)),np.sort(Y_pred_prob))

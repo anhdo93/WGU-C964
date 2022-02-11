@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request
 import pandas as pd
-import model
+import preloaded_model
 from User import User
 
 app = Flask(__name__)
@@ -13,7 +13,7 @@ def index():
 
 @app.route("/result", methods=["POST"])
 def result():
-    all_features = model.get_features()    
+    all_features = preloaded_model.get_features()    
     user = User(all_features)
 
     def assign(user,feature,html_label):
@@ -45,9 +45,9 @@ def result():
     assign(user,'Realty','HOME')
 
     user_df = pd.DataFrame(user.to_dict(all_features), index=[0])
-    model.show_result(user_df)
+    preloaded_model.show_result(user_df)
     
-    return str(model.show_result(user_df))
+    return str(preloaded_model.show_result(user_df))
     #return user.to_dict(all_features)   
 
 
