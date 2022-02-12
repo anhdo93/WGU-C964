@@ -110,13 +110,13 @@
                                 <br>
                                 <label for="annual-income">Annual Income</label>
                                 <select id="annual-income" name="ANNUAL_INCOME">
-                                    <option value="low">Low</option>
-                                    <option value="medium">Medium</option>
-                                    <option value="high">High</option>
+                                    <option value="low"><$50,000</option>
+                                    <option value="medium">$50,000-$150,000</option>
+                                    <option value="high">>$150,000h</option>
                                 </select>
                                 <br>
-                                <label for="select-industry">Industry</label>
-                                <select id="select-industry" name="INDUSTRY">
+                                <label for="select-income-category">Income Category</label>
+                                <select id="select-income-category" name="INCOME_CATEGORY">
                                     <option value="Working">Working</option>
                                     <option value="Commercial associate">Commercial associate</option>
                                     <option value="State servant">State servant</option>
@@ -145,8 +145,8 @@
                                 <label for="email">Email</label>
                                 <input type="checkbox" id="email" name="EMAIL">    
                                 <br>
-                                <label for="mobile phone">Mobile phone</label>
-                                <input type="checkbox" id="mobile-phone" name="MOBILE_PHONE">    
+                                <label for="phone">Phone</label>
+                                <input type="checkbox" id="mobile-phone" name="PHONE">    
                                 <br>   
                                 <label for="work phone">Work phone</label>
                                 <input type="checkbox" id="work-phone" name="WORK_PHONE">    
@@ -170,7 +170,10 @@
             <script src="/static/simulation.js"></script>
         </main>
         <footer>
-            <p><u>Disclaimer</u>: The FICO®&nbsp;Score Estimator is for informational purposes only and is intended to approximate the FICO Score range based on answers to the questions provided.&nbsp;Your actual score, and the impact of any actions taken, results from a complex interaction of FICO's scoring methodologies and the information on your credit report, some of which changes daily
+            <p><u>Disclaimer</u>: The credit score estimated from the application is for informational 
+                purposes only and is intended to approximate the FICO Score range based on answers to the questions provided.
+                Your actual score, and the impact of any actions taken, results from a complex interaction of FICO's scoring methodologies
+                 and the information on your credit report, some of which changes daily.
             <p>©Copyright 2022 by Hooli Financial Group. All rights reserved.</p>
         </footer>
        

@@ -34,12 +34,12 @@ def result():
 
     assign(user,'Years Employed','YEARS_EMPLOYED')
     assign(user,'Annual Income','ANNUAL_INCOME')
-    assign(user,'Income Category','INDUSTRY')
+    assign(user,'Income Category','INCOME_CATEGORY')
     assign(user,'Occupation','OCCUPATION')
     assign(user,'Residency','RESIDENCY')
 
     assign(user,'Email','EMAIL')
-    assign(user,'Phone','MOBILE_PHONE')
+    assign(user,'Phone','PHONE')
     assign(user,'Work Phone','WORK_PHONE')
     assign(user,'Car','CAR')
     assign(user,'Realty','HOME')
