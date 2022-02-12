@@ -5,7 +5,7 @@ import pandas as pd
 from User import User
 
 
-bst = lgb.Booster(model_file='preloaded_model.txt')
+bst = lgb.Booster(model_file='model_trained.txt')
 
 
 all_features=['Gender', 'Car', 'Realty', 'Work Phone', 'Phone', 'Email', 

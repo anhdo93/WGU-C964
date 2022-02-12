@@ -229,7 +229,7 @@ params = {
 bst = lgb.LGBMModel(**params)
 bst.fit(X_train, Y_train, eval_set=[(X_test, Y_test)],eval_metric='auc',
         eval_names='Test dataset',callbacks=[lgb.log_evaluation(50)])
-bst.booster_.save_model('preloaded_model.txt')
+bst.booster_.save_model('model_trained.txt')
 
 if __name__ == "__main__":
   Y_pred_prob = bst.predict(X_test)  
