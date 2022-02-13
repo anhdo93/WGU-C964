@@ -29,7 +29,7 @@ application.iloc[:,:].agg(lambda x:';'.join(str(y) for y in x.unique())).to_fram
 """# Data Cleaning"""
 
 # Labeling users with 'REJECTED' status (0 - Approved, 1 - Rejected) on 'credit'
-credit['REJECTED'] = 0 # Adding 'APPROVED' column with everyone approved
+credit['REJECTED'] = 0 # Adding 'REJECTED' column with everyone approved
 conditions = [credit['STATUS'].isin(['2', '3', '4', '5'])] # Conditions: due more than 60 days. Return TRUE/FALSE
 credit['REJECTED'] = np.select(conditions, [1], default = 0) # Assign risky users
 users = pd.DataFrame(credit.groupby(['ID']).agg({'REJECTED':'max', 'MONTHS_BALANCE':'min'})) # Unique users record with label and 'OPEN_MONTH'
@@ -37,10 +37,9 @@ users = users.rename(columns = {'MONTHS_BALANCE':'OPEN_MONTH'})
 
 
 # Raw Data = Merge Application + Credit data
-# Merge two dataframes 'application' and 'open_month' by 'ID'
+# Merge two dataframes 'application' and 'users' by 'ID'
 raw = pd.merge(application, users, how = 'right', on ='ID')
 raw.dropna(inplace = True) # Drop credit records with no information - ANY
-# data.dropna(subset = ['CODE_GENDER'], inplace = True) # Drop credit records with no information (not matching applications)
 
 raw = raw.astype({'FLAG_WORK_PHONE': 'int64','FLAG_PHONE': 'int64','FLAG_EMAIL': 'int64'}) # Preserve binary features as integer
 raw # Applications with matching credit records
@@ -176,7 +175,7 @@ data
 #One-Hot Encoding (OHE) the following columns:
 OHE_columns=['# of Children','Annual Income','Age','Years Employed','Family Size','Income Category','Occupation','Education','Marital Status','Residency']
 data_OHE = pd.get_dummies(data, columns=OHE_columns)
-data_OHE.drop('ID',axis=1, inplace=True)
+data_OHE.drop('ID', axis=1, inplace=True)
 
 
 
@@ -217,6 +216,7 @@ X_train,Y_train = RandomUnderSampler(sampling_strategy=1).fit_resample(X_train,Y
 
 """## LightGBM"""
 
+"""Train new model
 lgb_train = lgb.Dataset(X_train, Y_train)
 lgb_valid = lgb.Dataset(X_test, Y_test, reference = lgb_train)
 params = {
@@ -226,10 +226,16 @@ params = {
     'n_estimators':100
 }
 
+
 bst = lgb.LGBMModel(**params)
 bst.fit(X_train, Y_train, eval_set=[(X_test, Y_test)],eval_metric='auc',
         eval_names='Test dataset',callbacks=[lgb.log_evaluation(50)])
 bst.booster_.save_model('model_trained.txt')
+"""
+
+# Use pre-trained model
+bst = lgb.Booster(model_file='model_trained.txt')
+
 
 if __name__ == "__main__":
   Y_pred_prob = bst.predict(X_test)  
