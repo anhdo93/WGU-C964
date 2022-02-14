@@ -24,8 +24,9 @@
     </script>
 
 
-    <section class="all_charts">
+    <section class="all_charts">        
         <div class="chart">
+            <h2>Data Distribution by Feature</h2>
             <label for="feature1">Select feature:</label>
             <select name="feature1" method="GET" action="/dashboard" onchange="cbPie(this.value)">
                 {% for feature in feature1[1:] %}
@@ -35,6 +36,7 @@
             <div id="pieChart"></div>
         </div>
         <div class="chart">
+            <h2>Approval/Rejection Rate within Feature</h2>
             <label for="feature2">Select feature:</label>
             <select name="feature2" method="GET" action="/dashboard" onchange="cbBar(this.value)">
                 {% for feature in feature2[1:] %}

@@ -87,6 +87,7 @@ def callback():
 
 def plotPie(df, feature="Gender"):
     fig = px.pie(df, names=feature)
+    fig.update_traces(hovertemplate = "<b>%{label}</b> <br> %{value:,.r} <br> %{percent:.2%}%")
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
     return graphJSON
 
@@ -95,8 +96,8 @@ def plotBar(df, feature="Gender"):
     for category in df[feature].unique():
         feature_approved = df[(df['Rejected']==0) & (df[feature]==category)].count()[feature]
         feature_rejected = df[(df['Rejected']==1) & (df[feature]==category)].count()[feature]
-        fig.add_trace(go.Bar(x=['Approved', 'Rejected'],y=[feature_approved, feature_rejected], name=category))
-    
+        fig.add_trace(go.Bar(x=['Approved', 'Rejected'],y=[feature_approved, feature_rejected], customdata=[feature_approved, feature_rejected], 
+                                name=category, hovertemplate = "<b>%{label}</b> <br> %{customdata:,.r} <br> %{y:.2f}%"))
     fig.update_layout(barmode='stack', barnorm='percent', yaxis_title="Percent")  
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
     return graphJSON
