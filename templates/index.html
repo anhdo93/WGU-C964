@@ -159,13 +159,31 @@
                                 <br>
                             </div>
                         </section>
-                    </div>                
+                    </div>
+                    <div class="break"></div>
+                    <div class="settings">
+                        <section>
+                            <h2>Settings</h2>
+                            <label for="minimum">Minimum score</label>
+                            <input type="range" id="minimum" name="MINIMUM" value="400" min="300" max="500" oninput="this.nextElementSibling.value = this.value">
+                            <output>400</output>
+                            <label for="maximum">Maximum score</label>
+                            <input type="range" id="maximum" name="MAXIMUM" value="700" min="500" max="900" oninput="this.nextElementSibling.value = this.value">
+                            <output>700</output>
+                            <label for="approval">Approval score</label>
+                            <input type="range" id="approval" name="APPROVAL" value="600" min="300" max="900" oninput="this.nextElementSibling.value = this.value">
+                            <output>600</output>
+                            <input type="reset" id="reset" value="Reset Input"/>
+                        </section>
+                    </div>
                 </div>
             </form>
             <input type="submit" form="appForm" value="Show Result" id="formButton">
             <section class="result">
+                <div id="intro"></div>
                 <div class="loader"></div>
                 <div id="score"></div>
+                <div id="message"></div>
             </section> 
             <script src="/static/simulation.js"></script>
         </main>

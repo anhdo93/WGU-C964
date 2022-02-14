@@ -45,9 +45,14 @@ def result():
     assign(user,'Realty','HOME')
 
     user_df = pd.DataFrame(user.to_dict(all_features), index=[0])
-    model_trained.show_result(user_df)
-    
-    return str(model_trained.show_result(user_df))
+
+    min=int(request.form.get("MINIMUM"))
+    max=int(request.form.get("MAXIMUM"))
+    approval=int(request.form.get("APPROVAL"))
+
+    prediction = float(model_trained.show_result(user_df))
+    score = round((1-prediction)*(max-min)+min)
+    return str(score)
     #return user.to_dict(all_features)   
 
 

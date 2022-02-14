@@ -31,4 +31,3 @@ def show_result(user_df):
 def get_features():
   return all_features
   
-print(show_result(user_df))
