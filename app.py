@@ -1,7 +1,4 @@
-from glob import glob
 from flask import Flask, render_template, request
-from matplotlib.colors import BoundaryNorm
-from matplotlib.pyplot import title
 import pandas as pd
 
 import model_trained
@@ -74,16 +71,19 @@ def result():
      
 @app.route("/dashboard")
 def dashboard():
-    return render_template("dashboard.html", title="Dashboard", graphJSON1=plotPie(df), graphJSON2=plotBar(df), all_features=all_features)
+    return render_template("dashboard.html", title="Dashboard", graphJSON1=plotPie(df), graphJSON2=plotBar(df), feature1=all_features, feature2=all_features)
+
+@app.route('/cbPie', methods=['GET'])
+def cbPie():
+    return plotPie(df, request.args.get('data'))
+
+@app.route('/cbBar', methods=['GET'])
+def cbBar():
+    return plotBar(df, request.args.get('data'))
 
 @app.route('/callback', methods=['GET'])
 def callback():
-    global df
-    allJSON = {
-        "JSON1": plotPie(df, request.args.get('data')),
-        "JSON2": plotBar(df, request.args.get('data'))
-    }
-    return allJSON
+    return plotPie(df, request.args.get('data'))
 
 def plotPie(df, feature="Gender"):
     fig = px.pie(df, names=feature)
