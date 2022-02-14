@@ -32,17 +32,23 @@ $('#appForm').submit(function(event){
     
     setTimeout(() => {                     
         $('.loader').hide();     
-        $('#intro').text("Your estimated credit score is...")   
-        if (score >= threshold) {
-            $('#score').text(score);            
-            $('#score').css("color","green");            
-            chance = (score-threshold)/(max-threshold)*100;
-            $("#message").text("Congratulations, your approval chance is: "+chance.toFixed(1)+"%!");
+        $('#intro').text("Your estimated credit score is...") 
+        if (min < threshold && threshold < max)  {
+            if (score >= threshold) {
+                $('#score').text(score);            
+                $('#score').css("color","green");            
+                chance = (score-threshold)/(max-threshold)*100;
+                $("#message").text("Congratulations, your approval chance is: "+chance.toFixed(1)+"%!");
+            } else {
+                $('#score').text(score);            
+                $('#score').css("color","red");            
+                chance = (threshold-score)/(threshold-min)*100;
+                $("#message").text("Unfortunately, your rejection chance is: "+chance.toFixed(1)+"%.");
+            }
         } else {
-            $('#score').text(score);            
-            $('#score').css("color","red");            
-            chance = (threshold-score)/(threshold-min)*100;
-            $("#message").text("Unfortunately, your rejection chance is: "+chance.toFixed(1)+"%.");
+            $('#score').css("color","blue");
+            $('#score').text('---');  
+            $('#message').text('Oops, something went wrong! Please make sure Minimum Score < Approval Score < Maximum Score') 
         }
         $('#score').show();
         $('#message').show();

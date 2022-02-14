@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{% block main %}
+    <h1>Interactive Dashboard</h1>
+    <script>
+        function callback(selection) {
+            $.getJSON({
+                url: "/callback",
+                data: {'data': selection},
+                success: function (result) {
+                    console.log(result.JSON1)
+                    console.log(result.JSON2)
+                    Plotly.newPlot('pieChart', result.JSON1, {})
+                    Plotly.newPlot('barChart', result.JSON2, {})
+                }
+            })
+        }
+    </script>
+
+    <label for="all_features">Select feature:</label>
+    <select name="all_features" method="GET" action="/dashboard" onchange="callback(this.value)">
+        {% for feature in all_features[1:] %}
+        <option value="{{feature}}">{{feature}}</option>
+        {% endfor %}
+    </select> 
+
+    <section class="all_charts">
+        <div class="chart" id="pieChart"></div>
+        <div class="chart" id="barChart"></div>
+    </section>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script type="text/javascript">
+        var graph1 = {{ graphJSON1 | safe }};
+        var graph2 = {{ graphJSON2 | safe }};
+        Plotly.plot("pieChart", graph1,{}); 
+        Plotly.plot("barChart", graph2,{}); 
+    </script>         
+{% endblock %}

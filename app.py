@@ -1,15 +1,32 @@
+from glob import glob
 from flask import Flask, render_template, request
+from matplotlib.colors import BoundaryNorm
+from matplotlib.pyplot import title
 import pandas as pd
+
 import model_trained
+import cleaned_data_dashboard as dashboard
 from User import User
+
+import json
+import plotly
+import plotly.express as px
+import plotly.graph_objects as go
+
 
 app = Flask(__name__)
 
 
 
+df=dashboard.data()
+all_columns = list(df.columns)
+label = ['Rejected']
+all_features = [feature for feature in all_columns if feature not in label]
+
+
 @app.route("/")
 def index():
-    return render_template("index.html",score=500)
+    return render_template("index.html", title="Home")
 
 @app.route("/result", methods=["POST"])
 def result():
@@ -53,8 +70,37 @@ def result():
     prediction = float(model_trained.show_result(user_df))
     score = round((1-prediction)*(max-min)+min)
     return str(score)
-    #return user.to_dict(all_features)   
+    #return user.to_dict(all_features)  
+     
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html", title="Dashboard", graphJSON1=plotPie(df), graphJSON2=plotBar(df), all_features=all_features)
 
+@app.route('/callback', methods=['GET'])
+def callback():
+    global df
+    allJSON = {
+        "JSON1": plotPie(df, request.args.get('data')),
+        "JSON2": plotBar(df, request.args.get('data'))
+    }
+    return allJSON
+
+def plotPie(df, feature="Gender"):
+    fig = px.pie(df, names=feature)
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    return graphJSON
+
+def plotBar(df, feature="Gender"):
+    fig = go.Figure()
+    for category in df[feature].unique():
+        feature_approved = df[(df['Rejected']==0) & (df[feature]==category)].count()[feature]
+        feature_rejected = df[(df['Rejected']==1) & (df[feature]==category)].count()[feature]
+        fig.add_trace(go.Bar(x=['Approved', 'Rejected'],y=[feature_approved, feature_rejected], name=category))
+    
+    fig.update_layout(barmode='stack', barnorm='percent', yaxis_title="Percent")  
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    return graphJSON
+    
 
 if __name__ == "__main__":
     app.run(debug=True)

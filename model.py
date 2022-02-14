@@ -134,7 +134,6 @@ data['Family Size'] = np.clip(raw['CNT_FAM_MEMBERS'], a_min = None, a_max = 3 ) 
 """
 
 
-#TODO consider not to/to merge student and pensioner to state servant?
 map_array = {'State servant': ['Pensioner', 'Student']}
 data['Income Category'] = raw['NAME_INCOME_TYPE']
 for new_value in map_array:
@@ -171,6 +170,8 @@ data['Residency'] = raw['NAME_HOUSING_TYPE']
 """# One Hot Encoding"""
 
 data
+# Option to export cleaned data (before OHE)
+data.to_csv('./data/cleaned_data.csv')
 
 #One-Hot Encoding (OHE) the following columns:
 OHE_columns=['# of Children','Annual Income','Age','Years Employed','Family Size','Income Category','Occupation','Education','Marital Status','Residency']
