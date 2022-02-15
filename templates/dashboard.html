@@ -20,7 +20,15 @@
                 }
             })            
         }
-       
+        function cbX(selection) {
+            $.getJSON({
+                url: "/cbX",
+                data: {'data': selection},
+                success: function (result) {
+                    Plotly.newPlot('xChart', result, {})
+                }
+            })            
+        }
     </script>
 
 
@@ -46,13 +54,31 @@
             <div id="barChart"></div>
         </div>
 
+        
+        
     </section>
+    
+    <div class="break"></div>
+
+    <div class="large_chart">
+        <h2>Placeholder for 3rd Chart</h2>
+        <label for="feature3">Select feature:</label>
+        <select name="feature3" method="GET" action="/dashboard" onchange="cbX(this.value)">
+            {% for feature in feature1[1:] %}
+            <option value="{{feature}}">{{feature}}</option>
+            {% endfor %}
+        </select> 
+        <div id="xChart"></div>
+    </div>
 
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script type="text/javascript">
         var graph1 = {{ graphJSON1 | safe }};
         var graph2 = {{ graphJSON2 | safe }};
+        var graph3 = {{ graphJSON3 | safe }};
+
         Plotly.plot("pieChart", graph1,{}); 
         Plotly.plot("barChart", graph2,{}); 
+        Plotly.plot("xChart", graph3,{}); 
     </script>         
 {% endblock %}

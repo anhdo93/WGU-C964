@@ -156,6 +156,10 @@ footer  {
     width: 30%;
     flex-grow: 1;
 }
+.large_chart {
+    width: 100%;
+    flex-grow: 1;
+}
 .chart label, .chart select {
     margin-left: 37%;
     font-size: 15px;
