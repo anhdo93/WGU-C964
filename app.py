@@ -1,10 +1,7 @@
-from lib2to3.pgen2.pgen import DFAState
-from pyexpat import features
 from flask import Flask, render_template, request
 import pandas as pd
 
 import model_trained
-import cleaned_data_dashboard as dashboard
 from User import User
 
 import json
@@ -12,13 +9,29 @@ import plotly
 import plotly.express as px
 import plotly.graph_objects as go
 import prince
-import matplotlib.pyplot as plt
+
 
 app = Flask(__name__)
 
+def data():
+    # Import cleaned data and remapping values
+    df = pd.read_csv('./data/cleaned_data.csv')
+    df.drop(columns=['ID','Unnamed: 0'], inplace=True)
 
+    # Gender
+    map_array = {'0':'Female', '1':'Male'}
+    df['Gender'] = df['Gender'].astype(str).replace(map_array)
+    # Car/Realty/Work Phone/Phone/Email
+    map_array = {'0':'No', '1':'Yes'}
+    df['Car'] = df['Car'].astype(str).replace(map_array)
+    df['Realty'] = df['Realty'].astype(str).replace(map_array)
+    df['Work Phone'] = df['Work Phone'].astype(str).replace(map_array)
+    df['Phone'] = df['Phone'].astype(str).replace(map_array)
+    df['Email'] = df['Email'].astype(str).replace(map_array)
 
-df=dashboard.data()
+    return df
+
+df=data()
 all_columns = list(df.columns)
 label = ['Rejected']
 all_features = [feature for feature in all_columns if feature not in label]
@@ -127,6 +140,8 @@ def plotScree(df, features=all_features):
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
     return graphJSON
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
