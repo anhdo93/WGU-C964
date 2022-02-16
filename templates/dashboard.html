@@ -19,25 +19,16 @@
                     Plotly.newPlot('barChart', result, {})
                 }
             })            
-        }
-        function cbX(selection) {
-            $.getJSON({
-                url: "/cbX",
-                data: {'data': selection},
-                success: function (result) {
-                    Plotly.newPlot('xChart', result, {})
-                }
-            })            
-        }
+        }       
     </script>
 
 
-    <section class="all_charts">        
+    <section class="small_charts">        
         <div class="chart">
             <h2>Data Distribution by Feature</h2>
             <label for="feature1">Select feature:</label>
             <select name="feature1" method="GET" action="/dashboard" onchange="cbPie(this.value)">
-                {% for feature in feature1[1:] %}
+                {% for feature in feature1[0:] %}
                 <option value="{{feature}}">{{feature}}</option>
                 {% endfor %}
             </select> 
@@ -47,28 +38,32 @@
             <h2>Approval/Rejection Rate within Feature</h2>
             <label for="feature2">Select feature:</label>
             <select name="feature2" method="GET" action="/dashboard" onchange="cbBar(this.value)">
-                {% for feature in feature2[1:] %}
+                {% for feature in feature2[0:] %}
                 <option value="{{feature}}">{{feature}}</option>
                 {% endfor %}
             </select> 
             <div id="barChart"></div>
         </div>
 
-        
-        
+                
     </section>
     
     <div class="break"></div>
 
+    <h2>MCA Analysis</h2>
+
+    <div class="small_charts">
+        <div class="chart">
+            <div id="categoryChart"></div>
+        </div>
+        
+        <div class="chart">
+            <div id="pointChart"></div>
+        </div>
+    </div>    
+
     <div class="large_chart">
-        <h2>Placeholder for 3rd Chart</h2>
-        <label for="feature3">Select feature:</label>
-        <select name="feature3" method="GET" action="/dashboard" onchange="cbX(this.value)">
-            {% for feature in feature1[1:] %}
-            <option value="{{feature}}">{{feature}}</option>
-            {% endfor %}
-        </select> 
-        <div id="xChart"></div>
+        <div id="screeChart"></div>
     </div>
 
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
@@ -76,9 +71,14 @@
         var graph1 = {{ graphJSON1 | safe }};
         var graph2 = {{ graphJSON2 | safe }};
         var graph3 = {{ graphJSON3 | safe }};
+        var graph4 = {{ graphJSON4 | safe }}
+        var graph5 = {{ graphJSON5 | safe }}
+
 
         Plotly.plot("pieChart", graph1,{}); 
         Plotly.plot("barChart", graph2,{}); 
-        Plotly.plot("xChart", graph3,{}); 
+        Plotly.plot("categoryChart", graph3,{}); 
+        Plotly.plot("pointChart", graph4,{}); 
+        Plotly.plot("screeChart", graph5,{}); 
     </script>         
 {% endblock %}

@@ -3,7 +3,7 @@ import pandas as pd
 def data():
     # Import cleaned data and remapping values
     df = pd.read_csv('./data/cleaned_data.csv')
-    df.drop(columns='ID', inplace=True)
+    df.drop(columns=['ID','Unnamed: 0'], inplace=True)
 
     # Gender
     map_array = {'0':'Female', '1':'Male'}

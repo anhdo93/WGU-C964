@@ -1,3 +1,5 @@
+from lib2to3.pgen2.pgen import DFAState
+from pyexpat import features
 from flask import Flask, render_template, request
 import pandas as pd
 
@@ -72,7 +74,9 @@ def result():
      
 @app.route("/dashboard")
 def dashboard():
-    return render_template("dashboard.html", title="Dashboard", graphJSON1=plotPie(df), graphJSON2=plotBar(df), graphJSON3=plotX(df), feature1=all_features, feature2=all_features, feature3=all_features)
+    return render_template("dashboard.html", title="Dashboard", graphJSON1=plotPie(df), graphJSON2=plotBar(df), 
+                            graphJSON3=plotCategory(df), graphJSON4=plotPoint(df), graphJSON5=plotScree(df),
+                            feature1=all_features, feature2=all_features, feature3=all_features)
 
 @app.route('/cbPie', methods=['GET'])
 def cbPie():
@@ -81,10 +85,6 @@ def cbPie():
 @app.route('/cbBar', methods=['GET'])
 def cbBar():
     return plotBar(df, request.args.get('data'))
-
-@app.route('/cbX', methods=['GET'])
-def callback():
-    return plotX(df, request.args.get('data'))
 
 def plotPie(df, feature="Gender"):
     fig = px.pie(df, names=feature)
@@ -103,33 +103,27 @@ def plotBar(df, feature="Gender"):
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
     return graphJSON
     
-def plotX(df, features=['Annual Income', 'Occupation','Realty','Car','Phone']):
-    # Prince method - from DOC
-    X=df[features]
-    #mca = prince.MCA(n_components=2, n_iter=3, copy=True, check_input=True, engine='auto',random_state=42)
-    #mca=mca.fit(X)
-    """
-    ax = mca.plot_coordinates(
-                X=X,ax=None, figsize=(6, 6), show_row_points=True, 
-                row_points_size=10, show_row_labels=False, 
-                show_column_points=True, column_points_size=30, show_column_labels=False, legend_n_cols=1)
-    """
-    #fig = ax.get_figure().show()
+def plotCategory(df, features=all_features):
+    # MCA method from Prince
+    mca = prince.MCA(n_components=32).fit(df[features])
+    categories=mca.column_coordinates(df[features])[[0,1]] 
+    fig = px.scatter(categories,title='MCA Features Plot',x=0,y=1,color=categories.index,labels={'0':'Dimension 0', '1':'Dimension 1'})
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    return graphJSON
 
-    """
-    # Prince show with matplotlib
-    fig, ax = plt.subplots()
-    mc = prince.MCA(n_components=2).fit(X)
-    mc.plot_coordinates(X=X, ax=ax)
-    ax.set_xlabel('Component 1', fontsize=16)
-    ax.set_ylabel('Component 2', fontsize=16)
-    plt.show()
-    """
+def plotPoint(df, features=all_features):
+    # MCA method from Prince
+    mca = prince.MCA(n_components=32).fit(df[features])
+    points=mca.row_coordinates(df[features])[[0,1]] 
+    points['Rejected'] = df[label]
+    fig = px.scatter(points,title='MCA Points Plot',x=0,y=1,color='Rejected',labels={'0':'Dimension 0', '1':'Dimension 1'})
+    graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    return graphJSON
 
-    # Plotly PCA
-    fig = px.scatter_matrix(df, dimensions=features, color="Rejected")
-    fig.update_traces(diagonal_visible=False)
-    
+def plotScree(df, features=all_features):
+    # MCA method from Prince
+    mca = prince.MCA(n_components=32).fit(df[features])   
+    fig = px.bar(mca.explained_inertia_,title='Scree Plot', labels={'index':'Dimension', 'value':'Explained Variance %'})
     graphJSON = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
     return graphJSON

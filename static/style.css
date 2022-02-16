@@ -149,7 +149,7 @@ footer  {
 }
 
 /* For Dashboard */
-.all_charts {
+.small_charts {
     display: flex;
 }
 .chart {
